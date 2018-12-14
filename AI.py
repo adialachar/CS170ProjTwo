@@ -7,10 +7,95 @@ from collections import Counter
 import itertools
 numFeatures = 10
 
-def Backwards_Elimination():
+def Backwards_Elimination(confirmedData, testData):
+    
+    featureList = []
+    rates_list = []
+    success_list = []
+    featureListCopy = []
+    for i in range(1, numFeatures + 1):
+        featureList.append(i)
+        #featureListCopy.append(i)
+
+    featureListCopy = deepcopy(featureList)
+    print("This is the featureList copy")
+    print(featureListCopy)
+    currNumFeatures = deepcopy(len(featureList))
+
+    for i in range(0, currNumFeatures):
+        featureList.remove(featureList[i])
+        print("Feature {} should be removed from the list below".format(i+1))
+        print(featureList)
+        for j in range(0, len(testData)):
+
+            #currFeature = deepcopy(featureList[i])
+            
+            
+            rates_list.append(KNNAlgorithm(3, confirmedData, testData[j], featureList))
+            
+        SR = sum(rates_list)/len(rates_list)
+
+        success_list.append({"Feature": featureList , "SuccessRate": SR})
+        rates_list.clear()
+        featureList = deepcopy(featureListCopy)
+        print("this lis {0} and this list {1} should be the same right now".format(featureList, featureListCopy))
 
 
-    return 0
+    #print(success_list) 
+
+    success_list = sorted(success_list, key = lambda i: i["SuccessRate"])
+    print(success_list)
+    return Backwards_Elimination_Helper(confirmedData, testData, success_list[-1]["Feature"])
+
+    
+def Backwards_Elimination_Helper(confirmedData, testData, featureList):
+    
+    currNumFeatures = deepcopy(len(featureList))
+    featureListCopy = deepcopy(featureList)
+    success_list = []
+    rates_list = []
+
+    for i in range(0, currNumFeatures):
+        featureList.remove(featureList[i])
+        for j in range(0, len(testData)):
+            rates_list.append(KNNAlgorithm(3, confirmedData, testData[j], featureList))
+
+        SR = sum(rates_list)/len(rates_list)
+        success_list.append({"Feature": featureList, "SuccessRate": SR})
+        rates_list.clear()
+        featureList = deepcopy(featureListCopy)
+
+
+
+
+    success_list = sorted(success_list, key = lambda i: i["SuccessRate"])
+    print(success_list)
+
+    best = success_list[-1]
+    if (len(best["Feature"]) == 3):
+        print(best)
+        return best
+    else:
+        return Backwards_Elimination_Helper(confirmedData, testData, best["Feature"])
+        
+
+
+
+
+def Your_Own_Algorithm():
+
+
+
+
+def Your_Own_KNN():
+
+
+
+
+
+
+
+
 
 
 
@@ -27,6 +112,7 @@ def KNNAlgorithm(numNeighbors, confirmedData, testData, featureList):
 
     euclidean_distance = 0
 
+
     
     nearestNeighbors = []
     euclidean_distance = 0
@@ -36,8 +122,8 @@ def KNNAlgorithm(numNeighbors, confirmedData, testData, featureList):
         #print("This is i: {}".format(i))
         for j in range(0, len(featureList)):
             #print("This is j: {}".format(j))
-            #print(confirmedData[i][featureList[j]
-            #type(confirmedData[i][featureList[j])
+            #print(confirmedData[i][featureList[j]])
+            #print(type(testData[featureList[j]]))
             if (testData is not confirmedData[i]):
                 euclidean_distance += ((float(confirmedData[i][featureList[j]]) - float(testData[featureList[j]])) ** 2)
             #print("The euclidean distance between feature {0} of {1} and feature {2} of {3} is {4}".format( featureList[j], confirmedData[i][featureList[j]], featureList[j], testData[featureList[j]], euclidean_distance))
@@ -333,7 +419,7 @@ def main():
 
     confirmedData = [orgData[1],orgData[2], orgData[3], orgData[4], orgData[5], orgData[6]]
 
-    
+    '''
     #figure out how to partition the data
     counter = 0
          
@@ -364,14 +450,15 @@ def main():
         anotherDumbList = sorted(anotherDumbList, key = lambda i: i["SR"])
         print(anotherDumbList)
     '''
+    
     random.shuffle(orgData)
     #firstFifth = int(len(orgData)/3)
     #confirmedData = orgData[0:firstFifth]
     #testData = orgData[firstFifth + 1: (len(orgData))]
     confirmedData = orgData
     testData = orgData
-    toPush = Forward_Selection(confirmedData, testData)
-    '''
+    toPush = Backwards_Elimination(confirmedData, testData)
+    
 
 
 
