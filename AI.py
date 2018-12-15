@@ -82,12 +82,193 @@ def Backwards_Elimination_Helper(confirmedData, testData, featureList):
 
 
 
-def Your_Own_Algorithm():
+def Your_Own_Algorithm(confirmedData, testData):
+
+    #if the number of failures is ever greater than the ratio (1 - sum of first list), break, and iterate to the next one on the list
+    #and then figure out how to move all the problem datasets so that the next recursive call or next test of the feature h
+        LIST = []
+        success_list = []
+        other_list = []
+        feat = [1,2,6]
+        super_list = []
+        someDumbBool = False
+        curr_num_failures = 0
+        least_fails_so_far = math.inf
+        list_of_bad_inputs = []
+        list_of_bad_indexes = []
+        for i in range(1, numFeatures + 1):
+            for j in range(0,len(testData)):                            #change this back to [i]
+                toPush = KNNAlgorithm(3,confirmedData, testData[j], [i])
+                if (toPush == 0):
+                    curr_num_failures += 1
+                    list_of_bad_inputs.append(testData[j])
+                    list_of_bad_indexes.append(j)
+                if(curr_num_failures > least_fails_so_far):
+                    print("Current number of failures for feature {0}, which is {1}, has exceeded the least so far, which is {2}".format(i,curr_num_failures, least_fails_so_far))
+                    print("hii")
+                    someDumbBool = True
+                    break
+                LIST.append(toPush)
+                
+                
+            if(not someDumbBool):
+                print("hi")
+                least_fails_so_far = deepcopy(curr_num_failures)
+                success_rate = sum(LIST)/len(LIST)
+                curr_num_failures = 0
+                success_list.append({"Feature": int(i), "SuccessRate": success_rate})
+                super_list.append(LIST)
+                LIST.clear()
 
 
 
 
-def Your_Own_KNN():
+
+            else:
+                print("hello")
+                curr_num_failures = 0
+                someDumbBool = False
+                
+                                                                                        
+
+        success_list = sorted(success_list, key = lambda i: i["SuccessRate"])
+                                                                
+        featureList = [success_list[-1]["Feature"]]
+        print(featureList)
+
+        print(success_list)
+
+        list_o = list(set(list_of_bad_indexes))
+
+        print(list(set(list_of_bad_indexes)))
+        print(list_o)
+
+        print(len(list_o))
+        #print(list_of_bad_inputs)
+        list_for_new_stuff = []
+        for k in range(0, len(list_o)):
+            #print(testData[list_of_bad_indexes[i]])
+            #print("About to remove index {} from the list".format(
+            list_for_new_stuff.append(testData[list_o[k]])
+            #testData.remove(testData[list_o[k]])
+            #del testData[list_o[i]]
+            print("hi") 
+            #print(list_of_bad_indexes[i])
+        
+        
+
+        for k in range(0, len(list_o)):
+            testData.remove(list_for_new_stuff[k])
+            print("bye")
+
+
+
+
+        print(len(testData))
+        testData = list_for_new_stuff + testData
+        print(len(testData))
+        return Your_Own_Algorithm_Helper(confirmedData, testData, featureList, False)
+
+
+
+def Your_Own_Algorithm_Helper(confirmedData, testData,featureList, isSecondPass):
+
+    FLL = deepcopy(len(featureList))
+
+    featureList = list(set(featureList))
+    success_list = []
+    rates_list = []
+    appended = False
+    featuresToCompare = []
+    curr_num_failures = 0
+    least_failures_so_far = math.inf
+    someDumbBool = False
+    list_of_bad_indexes = []
+
+    for i in range(1, numFeatures + 1):
+        featuresToCompare.append(i)
+
+        featuresToCompare = list(set(featuresToCompare) - set(featureList))
+
+
+
+
+    for i in range(0, len(featuresToCompare)):
+        if (featuresToCompare[i] not in featureList):
+            featureList.append(featuresToCompare[i])
+            appended = True
+        for j in range(0, len(testData)):
+
+            toPush = KNNAlgorithm(3,confirmedData, testData[j], featureList)
+
+            if (toPush == 0):
+                curr_num_failures += 1
+                list_of_bad_indexes.append(j)
+            if (curr_num_failures > least_failures_so_far):
+                print("Curernt number of failures of feature {0} is {1}, which is greater than {2}".format(featureList, curr_num_failures, least_failures_so_far))
+                someDumbBool = True
+                break
+            success_list.append(toPush)
+
+        if(not someDumbBool):
+            success_rate = sum(success_list)/len(success_list)
+            least_failures_so_far = deepcopy(curr_num_failures)
+            curr_num_failures = 0
+            if(FLL + 1 == len(featureList)):
+                toPush = {"FL":deepcopy(featureList), "SR":success_rate}
+                rates_list.append(toPush)
+            print("hi")
+        else:
+            curr_num_failures = 0
+            someDumbBool = False
+            print("hello")
+
+        if(appended == True):
+            featureList.pop()
+            appended = False
+        
+        
+        success_list.clear()    
+        
+        
+        
+    list_o = list(set(list_of_bad_indexes))
+    list_for_new_stuff = []
+
+    print(list_o)
+
+
+    for k in range(0, len(list_o)):
+        list_for_new_stuff.append(testData[list_o[k]])
+
+
+    for l in range(0, len(list_for_new_stuff)):
+        testData.remove(list_for_new_stuff[l])
+
+    print(len(testData))
+    testData = list_for_new_stuff + testData
+    print(len(testData))
+
+        
+        
+    rates_list = sorted(rates_list, key = lambda i: i["SR"])
+    print(rates_list)
+    if (not isSecondPass):
+        return Your_Own_Algorithm_Helper(confirmedData, testData, rates_list[-1]["FL"], True)
+    else:
+        print(rates_list[-1])
+        return rates_list[-1]
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -118,19 +299,12 @@ def KNNAlgorithm(numNeighbors, confirmedData, testData, featureList):
     euclidean_distance = 0
 
     for i in range(0, len(confirmedData)):
-        #print("Hey im in the first for loop")
-        #print("This is i: {}".format(i))
         for j in range(0, len(featureList)):
-            #print("This is j: {}".format(j))
-            #print(confirmedData[i][featureList[j]])
-            #print(type(testData[featureList[j]]))
+            
             if (testData is not confirmedData[i]):
                 euclidean_distance += ((float(confirmedData[i][featureList[j]]) - float(testData[featureList[j]])) ** 2)
-            #print("The euclidean distance between feature {0} of {1} and feature {2} of {3} is {4}".format( featureList[j], confirmedData[i][featureList[j]], featureList[j], testData[featureList[j]], euclidean_distance))
-            #print("the euclidean distance squared is {}".format(euclidean_distance))
-            #print("The euclidean distance is {}".format(math.sqrt(euclidean_distance)))
             
-
+            
         dict = {'classification': int(float(confirmedData[i][0])), 'ED': math.sqrt(euclidean_distance)}
         nearestNeighbors.append(dict)
         euclidean_distance = 0
@@ -140,26 +314,19 @@ def KNNAlgorithm(numNeighbors, confirmedData, testData, featureList):
 
     
 
-    #print(nearestNeighbors)
+    
     nearestNeighbors = nearestNeighbors[0:numNeighbors]             
-
-    #print(nearestNeighbors)
 
     successes = 0
 
     for i in range (0,len(nearestNeighbors)):
 
         if (nearestNeighbors[i]["classification"] == int(float(testData[0]))):
-            #print(testData[0])
+        
             if (nearestNeighbors[i]["ED"] is not 0):
                 successes += 1
 
     success_rate = float(successes)/len(nearestNeighbors)
-    #print(success_rate)
-
-    #print(success_rate)
-
-
 
     if (success_rate > 0.5):
 
@@ -178,67 +345,25 @@ def Forward_Selection(confirmedData, testData):
     other_list = []
     feat = [1,2,6]
     super_list = []
-    #len(testData)i
-    #while something idik
+    
      
     for i in range(1, numFeatures + 1):
         for j in range(0,len(testData)):                            #change this back to [i]
             LIST.append(KNNAlgorithm(3,confirmedData, testData[j], [i]))
-            #otherlist.appendorted(rates_list, key = lambda i: i["SR"])
+    
 
         success_rate = sum(LIST)/len(LIST)
-        #print(sum(LIST))
-        #print(len(LIST))
-        #print("The success rate for feature {0} seems to be {1}".format(i,success_rate))
+    
         success_list.append({"Feature": int(i), "SuccessRate": success_rate})
         super_list.append(LIST)
         LIST.clear()
 
 
     success_list = sorted(success_list, key = lambda i: i["SuccessRate"])
-    #print("The most successful feature is {0} with a success rate of {1}".format(success_list[-1]["Feature"],success_list[-1]["SuccessRate"])) 
-
-
+    
     featureList = [success_list[-1]["Feature"]]
 
-    
-
-    #print(success_list)
-    #print(featureList)
     return Forward_Selection_Helper(confirmedData, testData, featureList,False)
-
-    
-    '''
-    
-    for j in range(0, len(testData)):
-        other_list.append(KNNAlgorithm(5,confirmedData,testData[j], [6,5,4]))
-
-
-    print(sum(other_list))
-    print(len(other_list))
-    success_rate = sum(other_list)/len(other_list)
-    print(success_rate)
-    '''
-
-    
-
-
-
-
-
-    #for i in range(1, numFeatures + 1):
-     #   for j in range(0, len(testData)):
-      #      list.append(KNNAlgorithm(5,confirmedData, testData[j], bestFeatures.append(i))
-
-
-       # list.clear()
-        #success_list.append( {"Feature":"Success Rate":success_rate 
-        
-
-
-
-
-    #print(success_rate)
 
 
 def Forward_Selection_Helper(confirmedData, testData, featureList, isSecondPass):
@@ -272,7 +397,7 @@ def Forward_Selection_Helper(confirmedData, testData, featureList, isSecondPass)
 
         
         success_rate = sum(success_list)/len(success_list)
-        #print("The success rate for {0} is {1}".format(featureList, success_rate))
+        
         if(FLL + 1 == len(featureList)):
             toPush = {"FL":deepcopy(featureList), "SR":success_rate}
             rates_list.append(toPush)
@@ -282,11 +407,11 @@ def Forward_Selection_Helper(confirmedData, testData, featureList, isSecondPass)
             featureList.pop()
             appended = False
         success_list.clear()        
-    #print(rates_list)
+    
 
     rates_list = sorted(rates_list, key = lambda i: i["SR"]) 
 
-    #print(rates_list)
+    
 
 
     if (not isSecondPass):
@@ -301,96 +426,9 @@ def Forward_Selection_Helper(confirmedData, testData, featureList, isSecondPass)
 
 
 
-    #print(len(featureList))
-
-
-
-
-
-
-'''
-    LIST = []
-    Features_And_Rates = []
-    counter = 0
-    featureList = list(set(featureList))
-    for i in range(1, numFeatures + 1):
-        featureList.append(i)
-        featureList = list(set(featureList))
-        for j in range(0, len(testData)):
-            #print("Here is the feature list im about to send to the KNN algorithm {}".format(featureList))    
-            LIST.append(KNNAlgorithm(5, confirmedData, testData[j],featureList))
-            
-            
-
-        success_rate = sum(LIST)/len(LIST)
-        print("The success rate for the features")
-        for k in range(0, len(featureList)):
-            print(featureList[k], end = ' ')
-
-        print("is {}".format(success_rate))
-        #f_l = tuple(featureList)
-
-
-        #print(type(f_l))
-
-        f_l = deepcopy(featureList)
-
-        toPush = {"F_L":f_l, "Success_Rate":success_rate}
-        
-        #print("I am going to push toPush the dict. Its contents are {}".format(toPush))
-        Features_And_Rates.append(toPush)
-    
-
-
-
-
-        featureList.pop()
-        LIST.clear()
-        #toPush.clear()
-
-
-
-
-    #ogList = deepcopy(Features_And_Rates)
-
-    Features_And_Rates = sorted(Features_And_Rates, key = lambda i: i["Success_Rate"])
-
-
-    print("the most successful features seem to be {0} with a success rate of {1}".format(Features_And_Rates[-1]["F_L"], Features_And_Rates[-1]["Success_Rate"]))
-
-
-    for i in range(0, len(Features_And_Rates)):
-
-            Features_And_Rates[i]["F_L"] = list(set(Features_And_Rates[i]["F_L"]))
-
-
-    print(Features_And_Rates)
-    #print("Here is the OG list as well {}".format(ogList))
-    if (sorted(Features_And_Rates[-1]["F_L"]) == sorted(featureList)):
-        print(featureList)
-        return featureList
-    else:
-        return Forward_Selection_Helper(confirmedData, testData, Features_And_Rates[-1]["F_L"])
-        #print("First recrusive call")
-        #print(featureList)
-    print(Features_And_Rates)
-
-
-    #nearestNeighbors = sorted(nearestNeighbors, key = lambda i: i[""])
-'''
-
-
-
-
-
-
-
-
-
 def main():
     filename = "CS170_SMALLtestdata__3.txt"
     file = open(filename, "r")
-    #print(file.read())
     data = file.readlines()
     
     
@@ -400,64 +438,25 @@ def main():
     orgData = []
     for line in data:
         orgData.append(line.split())
-        #print("hi")
+        
 
 
 
     organizedData = np.asarray(orgData)
-    print(len(orgData))
-    #print(len(organizedData))
+    
 
     organizedData = organizedData.transpose()
-    print(len(organizedData))
+    numFeatures = len(organizedData)
     
-    #print(organizedData[0])
-    print("This is the data we are testing against")
-    print(orgData[0])
-    print("Here are the results")
-
-
-    confirmedData = [orgData[1],orgData[2], orgData[3], orgData[4], orgData[5], orgData[6]]
-
-    '''
-    #figure out how to partition the data
-    counter = 0
-         
-    while(counter < 50):
-        random.shuffle(orgData)
-
-
-        firstFifth = int(len(orgData)/3 )
-        print(firstFifth)
     
-        confirmedData = orgData[0:firstFifth]
 
-    #print(confirmedData)
-
-        testData = orgData[firstFifth + 1: (len(orgData)) - 1]
-    #print(testData)
-
-        toPush = Forward_Selection(confirmedData,testData)
-
-        someDumbList.append(toPush["FL"])
-        anotherDumbList.append(toPush)
-
-        counter += 1
-    #KNNAlgorithm(2,confirmedData, testData, [1])
     
-    #print(Counter(map(tuple, someDumbList)))
-    #print()
-        anotherDumbList = sorted(anotherDumbList, key = lambda i: i["SR"])
-        print(anotherDumbList)
-    '''
+
     
     random.shuffle(orgData)
-    #firstFifth = int(len(orgData)/3)
-    #confirmedData = orgData[0:firstFifth]
-    #testData = orgData[firstFifth + 1: (len(orgData))]
     confirmedData = orgData
     testData = orgData
-    toPush = Backwards_Elimination(confirmedData, testData)
+    toPush = Your_Own_Algorithm(confirmedData, testData)
     
 
 
